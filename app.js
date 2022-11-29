@@ -13,9 +13,10 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors());
+// app.use(cors({ origin: `${process.env.FRONT_END_DOMAIN}` }));
 
-app.use("/api/places", placesRoutes); // => /api/places...
+app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
 
 app.use((req, res, next) => {
