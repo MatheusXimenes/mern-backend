@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
-const { validationResult } = require("express-validator");
 
-const HttpError = require("../models/http-error");
+const HttpError = require("../util/http-error");
 const UserModel = require("../models/userModel");
 
 const getUsers = async (req, res, next) => {
@@ -10,16 +9,36 @@ const getUsers = async (req, res, next) => {
 };
 
 const signup = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
-  }
   const { name, email, password } = req.body;
 
-  const hasUser = await UserModel.findOne({ email: email });
+  if (
+    !name ||
+    name.trim() === "" ||
+    !email ||
+    email.trim() === "" ||
+    !password ||
+    password.trim() === ""
+  ) {
+    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+  }
 
-  if (hasUser) {
-    throw new HttpError("Could not create user, email already exists.", 422);
+  let existingUser;
+  try {
+    existingUser = await UserModel.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError(
+      "Signing up failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+
+  if (existingUser) {
+    const error = new HttpError(
+      "User exists already, please login instead.",
+      422
+    );
+    return next(error);
   }
 
   const encryptedPassword = await bcrypt
