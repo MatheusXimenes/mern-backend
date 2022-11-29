@@ -13,8 +13,11 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(cors());
-// app.use(cors({ origin: `${process.env.FRONT_END_DOMAIN}` }));
+app.use(
+  cors({
+    origin: `${process.env.FRONT_END_DOMAIN}:${process.env.FRONT_END_PORT}`,
+  })
+);
 
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
@@ -36,6 +39,6 @@ mongoose
   .connect(process.env.DB_URL)
   .then(() => {
     console.log("DB Connected!");
-    app.listen(5000);
+    app.listen(process.env.SERVER_PORT);
   })
   .catch(() => console.log("DB Error!"));
