@@ -55,16 +55,13 @@ const signup = async (req, res, next) => {
 
   const savedUser = await createdUser.save();
 
-  res
-    .status(201)
-    .json({ user: savedUser.toObject({ getters: true, virtuals: false }) });
+  res.status(201).json(savedUser.toObject({ getters: true, virtuals: false }));
 };
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   const identifiedUser = await UserModel.findOne({ email: email });
-  console.log(identifiedUser, password);
   const matchPassword = await bcrypt.compare(password, identifiedUser.password);
 
   if (!identifiedUser) {
@@ -80,8 +77,9 @@ const login = async (req, res, next) => {
       401
     );
   }
-
-  res.json({ message: "Logged in!" });
+  const user = identifiedUser.toObject();
+  delete user.password;
+  res.json(user);
 };
 
 exports.getUsers = getUsers;
